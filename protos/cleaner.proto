@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "extractor.proto";
+
+message CleanInfo {
+  string batch_no = 1;                              // 批次号
+  string api = 2;                                   // api
+  string cl_status = 3;                             // 清洗状态
+  string cl_error_code = 4;                         // 清洗状态码
+  int32  topic_id = 5;                              // 页面入库 id
+  string clean_data = 6;                            // 清洗后的 json 结构数据
+}
+
+
+service CleanService {
+  rpc clean (ExtractInfo) returns (CleanInfo);
+}

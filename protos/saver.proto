@@ -1,0 +1,14 @@
+syntax = "proto3";
+import "cleaner.proto";
+
+message SaveStatus {
+  string batch_no = 1;                              // 批次号
+  string api = 2;                                   // api
+  string save_status = 3;                           // 储存状态
+  string save_error_code = 4;                       // 存储错误状态码
+}
+
+
+service SaveService {
+  rpc save (CleanInfo) returns (SaveStatus);
+}

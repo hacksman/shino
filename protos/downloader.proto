@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+message DownloadReq {
+  string batch_no = 1;                                      // 批次号
+  string api = 2;                                           // 请求 api
+  string url = 3;                                           // 请求 url
+  oneof one_of_method {
+    string method = 4;                                      // 请求方式
+  }
+  oneof one_of_download_type {
+    string download_type = 5;                               // 下载器类型
+  }
+  oneof one_of_retry_times {
+    int32 retry_times = 6;                                  // 重试次数
+  }
+  oneof one_of_time_out {
+    int32 time_out = 7;                                     // 超时时间
+  }
+  map<string, string> http_header = 8;                      // 额外的请求头
+  map<string, string> post_data = 9;                        // 如果请求为 post ，该字段需要值
+  oneof one_of_proxy {
+    int32 use_proxy = 10;                                   // 是否使用代理
+  }
+}
+
+
+enum CrawlStatus {
+  CRAWL_SUCCESS = 0;
+  CRAWL_FAIL = 1;
+}
+
+
+message DownloadRsp {
+  string batch_no = 1;                             // 批次号
+  string api = 2;                                  // 请求的 api
+  string url = 3;                                  // 下载的 url
+  CrawlStatus status = 4;                          // 爬取状态
+  int32 http_code = 5;                             // http 返回码
+  string download_time = 6;                        // 下载网页时间
+  float elapsed = 7;                               // 请求+解析 resp headers 耗时
+  string content_type = 8;                         // 下载网页内容类型
+  string content = 9;                              // 网页返回的内容
+
+  DownloadReq req_info = 10;                       // 请求信息
+}
+
+
+
+service DownloadService {
+  rpc download (DownloadReq) returns (DownloadRsp);
+}
+
+
+

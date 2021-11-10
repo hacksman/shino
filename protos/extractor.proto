@@ -1,0 +1,17 @@
+syntax = "proto3";
+import "downloader.proto";
+
+message ExtractInfo {
+  string batch_no = 1;                              // 批次号
+  string api = 2;                                   // api
+  string ex_status = 3;                             // 抽取状态
+  string ex_error_code = 4;                         // 错误状态码
+  int32  topic_id = 5;                              // 页面入库 id
+  string links = 6;                                 // 解析出的 url 信息
+  string extract_data = 7;                          // 解析出来的 json 结构信息
+}
+
+
+service ExtractService {
+  rpc extract (DownloadRsp) returns (ExtractInfo);
+}
