@@ -51,11 +51,26 @@ class SeedGenProcessor:
             return False
         return True
 
+    @staticmethod
+    def __format_sch_info(sch_info):
+        for field in ["post_data",
+                      "get_from_conf",
+                      "get_from_filter",
+                      "post_from_conf",
+                      "post_from_filter",
+                      "get_many",
+                      "post_many"]:
+            current_val = sch_info[field]
+            if current_val:
+                sch_info[field] = json.loads(sch_info.pop(field))
+        return sch_info
+
     def __cycle_schedule(self, order_dict):
         now_time = datetime.now()
         if not self.event.is_set():
             self.log.info(f"start gen seed")
             for sch_info in self.mysql.select_many("select * from `_seed_sch` where switch='on'"):
+                sch_info = self.__format_sch_info(sch_info)
                 sch_info = SchInfo(**sch_info)
                 if not self.__is_valid(sch_info):
                     self.log.warning(f"sch info miss is_once and appoint_crontab：")
