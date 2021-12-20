@@ -10,6 +10,7 @@ from furl import furl
 from glom import glom
 from lxml.etree import fromstring, HTMLParser
 
+from shino.extractor.pre_extract import PreExtract
 from shino.libs.encrypt import gen_md5
 from shino.libs.mysql_ext import MysqlExt
 from protos.gen.downloader_pb2 import DownloadReq
@@ -27,7 +28,9 @@ class ExtractHandle:
 
         self.mysql = MysqlExt(**self.mysql_conf)
 
-    def extract_detail(self, result, rules):
+        self.pre_extract = PreExtract(conf)
+
+    def extract_detail(self, result, rules, res_info):
 
         def _pack_json(result, rules):
             item = {}
@@ -37,6 +40,12 @@ class ExtractHandle:
                 if p_rule.get("$value_type") == "raw":
                     if p_rule.get("$parse_method") == "json":
                         item[p_rule.get("$name")] = glom(result, p_rule.get("$parse_rule"))
+                    elif p_rule.get("$parse_method") == 'query':
+                        query_params = furl(glom(res_info, 'url')).query.params
+                        item[p_rule.get("$name")] = query_params[p_rule.get('$parse_rule')]
+                    elif p_rule.get("$parse_method") == "post":
+                        post_data = glom(res_info, 'req_info.post_data')
+                        item[p_rule.get("$name")] = post_data[p_rule.get('$parse_rule')]
                     elif p_rule.get("$parse_method") == "none":
                         item[p_rule.get("$name")] = p_rule.get("$parse_rule")
                     else:
@@ -81,8 +90,9 @@ class ExtractHandle:
         pack_result = _pack_json(result, rules)
         return _unpack_datas(pack_result)
 
-    def pre_extract(self, res_info):
-        return res_info
+    def do_pre_extract(self, res_info):
+        new_res = self.pre_extract.handle(res_info)
+        return new_res
 
     def get_parse_rules(self, res_info):
         if not isinstance(res_info, dict):
@@ -140,7 +150,7 @@ class ExtractHandle:
         if not res_content:
             self.log.warning(f"something error happened")
             return []
-        results = self.extract_detail(res_content, parse_rule)
+        results = self.extract_detail(res_content, parse_rule, res_info)
         return results
 
     def pack_extract_data(self, res_info, rule, parse_results):
@@ -265,3 +275,4 @@ class ExtractHandle:
             download_req_results.append(download_req)
             del req_item
         return download_req_results
+
