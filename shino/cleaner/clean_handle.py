@@ -1,9 +1,11 @@
 # coding: utf-8
 # @Time : 9/9/21 10:53 AM
 
-
 import json
+from datetime import datetime
 
+from arrow import Arrow
+from bson import json_util
 from glom import glom
 from google.protobuf.json_format import MessageToDict
 
@@ -21,6 +23,7 @@ class CleanHandler:
         "FLOAT": float,
         "BOOLEAN": lambda x: x,
         "JSON": lambda x: x,
+        "TIMESTAMP": lambda x: x if isinstance(x, datetime) else Arrow.fromtimestamp(x).datetime
     }
 
     def __init__(self, conf):
@@ -75,7 +78,7 @@ class CleanHandler:
             "api": extract_info["api"],
             "cl_status": '1',
             "topic_id": extract_info["topic_id"],
-            "clean_data": json.dumps(extract_info["extract_data"]),
+            "clean_data": json.dumps(extract_info["extract_data"], default=json_util.default),
         }
         clean_info_msg = CleanInfo(**clean_info)
         return clean_info_msg

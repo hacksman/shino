@@ -7,6 +7,7 @@ import sys
 import traceback
 
 import stringcase
+from bson import json_util
 
 from glom import glom
 from sqlalchemy import (create_engine, MetaData, inspect)
@@ -101,7 +102,7 @@ class SaveHandler:
 
     def save(self, clean_info_msg):
         clean_info_dict = MessageToDict(clean_info_msg, preserving_proto_field_name=True)
-        clean_info_dict["clean_data"] = json.loads(clean_info_dict["clean_data"])
+        clean_info_dict["clean_data"] = json.loads(clean_info_dict["clean_data"], object_hook=json_util.object_hook)
         topic_id = clean_info_dict["topic_id"]
         topic_info = self.get_topic_by_id(topic_id)
         try:
