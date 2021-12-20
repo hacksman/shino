@@ -23,7 +23,7 @@ class CleanHandler:
         "FLOAT": float,
         "BOOLEAN": lambda x: x,
         "JSON": lambda x: x,
-        "TIMESTAMP": lambda x: x if isinstance(x, datetime) else Arrow.fromtimestamp(x).datetime
+        "TIMESTAMP": lambda x: x if isinstance(x, datetime) else Arrow.fromtimestamp(x).datetime.replace(tzinfo=None)
     }
 
     def __init__(self, conf):
