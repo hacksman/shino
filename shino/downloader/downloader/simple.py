@@ -64,6 +64,9 @@ class SimpleDownloader:
                 # print(f"最终的请求形式：「{req_kw}」")
                 res = requests.get(url, **req_kw)
             elif method == "post":
+                data = req_kw.pop('data')
+                if data and isinstance(data, dict):
+                    req_kw['data'] = json.dumps(data)
                 res = requests.post(url, **req_kw)
             else:
                 self.log.error(f"method error: {req_kw.get('method')}")
