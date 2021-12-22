@@ -18,13 +18,14 @@ class TimeExt:
 
     @classmethod
     def timestamp_to_human(cls, t=None, fmt="%Y-%m-%d %H:%M:%S"):
-        t = arrow.now().timestamp if (t != 0 and not t) else t
+        t = arrow.now().int_timestamp if (t != 0 and not t) else t
         time_now = arrow.get(t).shift(hours=+8).strftime(fmt)
         return time_now
 
+
     @classmethod
     def human_date_to_timestamp(cls, t=None):
-        time_stamp = arrow.get(t).shift(hours=-8).timestamp
+        time_stamp = arrow.get(t).shift(hours=-8).int_timestamp
         return time_stamp
 
     @classmethod
@@ -57,13 +58,13 @@ class TimeExt:
 
     @classmethod
     def human_date_yesterday_start(cls, floor="day", only_date=False):
-        time_stamp = arrow.now().shift(days=-1).floor(floor).timestamp
+        time_stamp = arrow.now().shift(days=-1).floor(floor).int_timestamp
         return cls.timestamp_to_human(time_stamp) if not only_date else cls.human_datetime_only_date(
             cls.timestamp_to_human(time_stamp))
 
     @classmethod
     def human_date_yesterday_end(cls, floor="day", only_date=False):
-        time_stamp = arrow.now().shift(days=-1).ceil(floor).timestamp
+        time_stamp = arrow.now().shift(days=-1).ceil(floor).int_timestamp
         return cls.timestamp_to_human(time_stamp) if not only_date else cls.human_datetime_only_date(
             cls.timestamp_to_human(time_stamp))
 
