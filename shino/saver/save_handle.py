@@ -19,6 +19,7 @@ from sqlalchemy.dialects.mysql import (TINYINT, SMALLINT, FLOAT)
 from google.protobuf.json_format import MessageToDict
 from protos.gen.cleaner_pb2 import CleanInfo
 from protos.gen.saver_pb2 import SaveStatus
+from shino.libs.lru import LruCache
 from shino.libs.mysql_ext import MysqlExt
 from shino.libs.sqlalchemy_ext import SqlalchemyExt
 
@@ -44,6 +45,7 @@ class SaveHandler:
         engine = create_engine(conn, encoding="utf-8", pool_recycle=1600, pool_pre_ping=True)
         return engine
 
+    @LruCache(maxsize=20, timeout=3600)
     def get_topic_by_id(self, topic_id):
         topic_info = self.mysql.select_one(f"select * from _topic where _id={topic_id}")
         return topic_info
@@ -90,6 +92,10 @@ class SaveHandler:
         self.base.metadata.create_all(self.engine)
         return True
 
+    @LruCache(maxsize=20, timeout=3600)
+    def get_model(self, table):
+        return SqlalchemyExt.get_model_by_table(self.base, self.engine, table)
+
     def __send_monitor(self, clean_info_dict):
         batch_no = clean_info_dict["batch_no"]
         api = clean_info_dict["api"]
@@ -119,7 +125,7 @@ class SaveHandler:
                                  })
         table_name = topic_info["table"]
         for clean_data in clean_info_dict["clean_data"]:
-            data_model = SqlalchemyExt.get_model_by_table(self.base, self.engine, table_name)
+            data_model = self.get_model(table_name)
             data_obj = SqlalchemyExt.dict_to_obj(clean_data, data_model)
             try:
                 self.session.add(data_obj)
