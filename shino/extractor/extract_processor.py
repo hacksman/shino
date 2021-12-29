@@ -54,7 +54,6 @@ class ExtractProcessor:
                     parse_results = self.extractor_handle.extract_content(res_msg, per_rule)
                     pack_results = self.extractor_handle.pack_extract_data(res_msg, per_rule, parse_results)
                     parse_msg_dict = MessageToDict(pack_results, preserving_proto_field_name=True)
-                    time.sleep(2)
                     self.rabbitmq.send(parse_msg_dict, self.out_tube_extract_info)
 
                 # gen next page
