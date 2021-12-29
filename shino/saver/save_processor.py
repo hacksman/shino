@@ -23,6 +23,7 @@ class SaveProcessor:
 
         self.rabbitmq_conf = glom(self.conf, "db.rabbitmq")
         self.input_tube = self.rabbitmq_conf['queue_cleaner_to_saver']
+        self.out_tube = self.rabbitmq_conf['queue_saver_to_monitor']
         self.rabbitmq = RabbitmqExt(host=self.rabbitmq_conf["host"],
                                     port=self.rabbitmq_conf["port"],
                                     user=self.rabbitmq_conf["user"],
@@ -37,6 +38,7 @@ class SaveProcessor:
                 save_status_rsp = self.saver.save(CleanInfo(**clean_info_msg))
                 # self.log.debug(f'do_job {len(clean_rsp.content)}')
                 save_status_info = MessageToDict(save_status_rsp, preserving_proto_field_name=True)
+                self.rabbitmq.send(save_status_info, self.out_tube)
             except Empty:
                 self.log.info(f"queue:「{self.input_tube}」 empty....")
                 time.sleep(2)
@@ -44,4 +46,4 @@ class SaveProcessor:
                 self.log.error(f"consume error happened:")
                 self.log.exception(e)
             time.sleep(0.01)
-        self.log.info(f"s_saver job exited.Bye Bye!")
+        self.log.info(f"saver job exited.Bye Bye!")
