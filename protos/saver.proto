@@ -6,6 +6,7 @@ message SaveStatus {
   string api = 2;                                   // api
   string save_status = 3;                           // 储存状态
   string save_error_code = 4;                       // 存储错误状态码
+  int32  count = 5;                                 // 存储数据的数量
 }
 
 
