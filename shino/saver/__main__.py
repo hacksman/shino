@@ -15,7 +15,7 @@ from shino.libs.log_ext import LogExt
 
 from concurrent import futures
 
-from signal import (SIGINT, SIGTERM, signal)
+from signal import (SIGINT, SIGTERM, signal, SIGCHLD)
 
 from google.protobuf.json_format import MessageToDict
 
@@ -87,6 +87,7 @@ def serve():
         log.success(f"{dir_name} shut down gracefully!")
 
     signal(SIGINT, handle_sigterm)
+    signal(SIGCHLD, handle_sigterm)
     signal(SIGTERM, handle_sigterm)
     server.wait_for_termination()
 

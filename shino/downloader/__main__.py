@@ -9,7 +9,7 @@ import grpc
 
 import multiprocessing
 
-from signal import signal, SIGTERM, SIGINT
+from signal import signal, SIGTERM, SIGINT, SIGCHLD
 
 from shino.libs.log_ext import LogExt
 
@@ -89,6 +89,7 @@ def serve():
         log.success(f"{dir_name} shut down gracefully")
 
     signal(SIGINT, handle_sigterm)
+    signal(SIGCHLD, handle_sigterm)
     signal(SIGTERM, handle_sigterm)
     server.wait_for_termination()
 

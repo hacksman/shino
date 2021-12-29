@@ -11,7 +11,7 @@ from shino.libs.log_ext import LogExt
 
 from shino.seed_generator.seed_gen_handle import SeedGenHandle
 
-from signal import (SIGINT, SIGTERM, signal)
+from signal import (SIGINT, SIGTERM, signal, SIGCHLD)
 
 from shino.seed_generator.seed_gen_processor import SeedGenProcessor
 
@@ -85,6 +85,7 @@ def main():
         log.success(f"{dir_name} shut down gracefully")
 
     signal(SIGINT, handle_sigterm)
+    signal(SIGCHLD, handle_sigterm)
     signal(SIGTERM, handle_sigterm)
 
     seed_producer.join()
